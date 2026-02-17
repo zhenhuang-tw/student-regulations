@@ -51,17 +51,9 @@ export default defineNuxtConfig({
     exposeConfig: false,
     viewer: true,
   },
-  plugins: [
-    '~/plugins/ga4.client.ts', // Google Analytics 4
-  ],
   css: [
     '~/assets/css/main.css', // Ensure your main CSS is included
   ],
-  runtimeConfig: {
-    public: {
-      ga4MeasurementId: process.env.NUXT_PUBLIC_GA4_MEASUREMENT_ID || '', // GA4 ID
-    },
-  },
   postcss: {
     plugins: {
       tailwindcss: {},

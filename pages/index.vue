@@ -1,32 +1,25 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
-    <h1 class="text-4xl font-extrabold text-center text-primary-700 dark:text-primary-300 mb-8">臺灣學生自治規章典藏</h1>
-
-    <div class="mb-8 max-w-2xl mx-auto">
-      <input
-        type="text"
-        v-model="searchQuery"
-        placeholder="搜尋法規全稱、簡稱或組織名稱..."
-        class="w-full p-3 border border-secondary-300 dark:border-secondary-600 rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-secondary-700 text-secondary-900 dark:text-secondary-100"
-      />
-    </div>
-
-    <div v-if="loading" class="text-center text-lg text-secondary-600 dark:text-secondary-400">載入中...</div>
-    <div v-else-if="error" class="text-center text-red-500 text-lg">錯誤：{{ error }}</div>
-    <div v-else>
-      <h2 class="text-3xl font-bold text-primary-600 dark:text-primary-400 mb-6">學生自治組織</h2>
-      <div v-if="filteredOrganizations.length === 0" class="text-center text-lg text-secondary-600 dark:text-secondary-400">
-        沒有找到符合條件的組織或法規。
-      </div>
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div v-for="org in filteredOrganizations" :key="org.id"
-             class="bg-white dark:bg-secondary-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6 cursor-pointer"
-             @click="navigateToOrganization(org.id)">
-          <h3 class="text-xl font-semibold text-primary-700 dark:text-primary-300 mb-2">{{ org.name }}</h3>
-          <p class="text-secondary-700 dark:text-secondary-300">{{ org.shortName }}</p>
-          <div class="mt-4 text-sm text-secondary-600 dark:text-secondary-400">
-            法規數量：{{ org.regulations.length }}
-          </div>
+  <div class="container mx-auto p-8">
+    <h1 class="text-3xl font-bold mb-8 text-center">台灣學生自治法規整合平台</h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div v-for="(group, orgId) in groupedRegulations" :key="orgId" class="border rounded-lg shadow-md hover:shadow-lg transition bg-white overflow-hidden">
+        <div class="bg-blue-600 text-white p-4">
+          <h2 class="text-xl font-bold">{{ group.orgName }}</h2>
+        </div>
+        
+        <div class="p-4">
+          <ul class="space-y-2">
+            <li v-for="reg in group.regulations" :key="reg.stem" class="flex justify-between items-center border-b pb-1 last:border-0">
+              <span class="text-gray-700 font-medium">{{ reg.title }}</span>
+              <NuxtLink 
+                :to="reg.path"
+                class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200"
+              >
+                檢視
+              </NuxtLink>
+            </li>
+          </ul>
         </div>
       </div>
     </div>
@@ -34,37 +27,48 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { useOrganizations } from '~/composables/useOrganizations';
+// 取得所有法規資料
+const { data: allRegulations } = await useAsyncData('home-regulations', () => {
+  return queryCollection('regulations')
+    .select('title', 'organizationName', 'path', 'stem', 'version')
+    .order('version', 'DESC') // 先按日期降序，確保下面過濾時先抓到最新的
+    .all()
+})
 
-const router = useRouter();
-const { organizations, loading, error, fetchOrganizations } = useOrganizations();
-const searchQuery = ref('');
+// 資料處理：依照組織分組，並過濾出每個法規的「最新版本」
+const groupedRegulations = computed(() => {
+  if (!allRegulations.value) return {}
 
-onMounted(() => {
-  fetchOrganizations();
-});
+  const groups: Record<string, any> = {}
 
-const filteredOrganizations = computed(() => {
-  if (!searchQuery.value) {
-    return organizations.value;
-  }
-  const query = searchQuery.value.toLowerCase();
-  return organizations.value.filter(org => {
-    // Search in organization name or short name
-    const orgMatch = org.name.toLowerCase().includes(query) || org.shortName.toLowerCase().includes(query);
-    if (orgMatch) return true;
+  allRegulations.value.forEach(item => {
+    // 假設路徑結構為 /regulations/org-id/reg-id/version
+    // item.stem 會類似 "regulations/ntpu-su/constitution/2025-02-17"
+    const parts = item.stem.split('/')
+    if (parts.length < 4) return // 結構不對則跳過
 
-    // Search in regulation names within the organization
-    const regulationMatch = org.regulations.some(reg =>
-      reg.name.toLowerCase().includes(query) || reg.shortName.toLowerCase().includes(query)
-    );
-    return regulationMatch;
-  });
-});
+    const orgId = parts[1]
+    const regId = parts[2]
 
-const navigateToOrganization = (orgId: string) => {
-  router.push(`/${orgId}`);
-};
+    if (!groups[orgId]) {
+      groups[orgId] = {
+        orgName: item.organizationName,
+        regulations: [] // 這裡存放該組織處理過的法規清單
+      }
+    }
+
+    // 檢查這個法規是否已經被加入過 (因為我們已按日期降序，第一個遇到的一定是最新版)
+    const exists = groups[orgId].regulations.find((r: any) => r.regId === regId)
+    if (!exists) {
+      groups[orgId].regulations.push({
+        title: item.title,
+        regId: regId,
+        path: item.path, // 連結到最新版的路徑
+        latestVersion: item.version
+      })
+    }
+  })
+
+  return groups
+})
 </script>

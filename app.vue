@@ -50,9 +50,9 @@
 
       <footer class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 mt-auto py-8 text-center">
         <p class="text-slate-500 text-sm">
-          &copy; {{ new Date().getFullYear() }} 臺灣學生自治規章典藏. <span class="hidden sm:inline">Built with Nuxt 4 & Tailwind CSS.</span>
+          &copy; {{ new Date().getFullYear() }} 臺灣學生自治規章典藏.
         </p>
-        <p class="text-xs text-lake-500 mt-2 font-mono">Open Data / Open Source</p>
+        <p class="text-xs text-lake-500 mt-2 font-mono"><a href="https://github.com/huang-zane/student-regulations" class="text-lake-500">GitHub</a></p>
       </footer>
 
     </div>

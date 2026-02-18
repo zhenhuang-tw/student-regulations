@@ -9,9 +9,9 @@
       <span>/</span>
       <span class="font-medium text-slate-700 dark:text-slate-300">{{ page?.belongsTo }}</span>
       <span>/</span>
-      <span class="font-medium text-slate-700 dark:text-slate-300">{{ page?.fullTitle }}</span>
+      <span class="font-medium text-slate-700 dark:text-slate-300">{{ page?.shortTitle }}</span>
       <span>/</span>
-      <span class="text-lake-600 dark:text-lake-400 font-bold truncate">{{ page?.version }} 版本</span>
+      <span class="text-lake-600 dark:text-lake-400 font-bold truncate">{{ toRocDate(page.version) }}版本</span>
     </nav>
 
     <!-- 主要內容區塊 -->
@@ -28,11 +28,11 @@
             <div class="space-y-3">
               <div>
                 <span class="text-sm text-slate-500 dark:text-slate-400 block">條文日期</span>
-                <span class="font-mono font-medium text-slate-700 dark:text-slate-200">{{ page.version }}</span>
+                <span class="font-medium text-slate-700 dark:text-slate-200">{{ toRocDate(page.version) }}</span>
               </div>
               
               <div>
-                <span class="text-sm text-slate-500 dark:text-slate-400 block mb-1">施行狀態</span>
+                <span class="text-sm text-slate-500 dark:text-slate-400 block mb-1">狀態</span>
                 <span 
                   class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium"
                   :class="page.isCurrent === 'true' 
@@ -40,7 +40,7 @@
                     : 'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400'"
                 >
                   <span class="w-1.5 h-1.5 rounded-full mr-2" :class="page.isCurrent === 'true' ? 'bg-emerald-500' : 'bg-rose-500'"></span>
-                  {{ page.isCurrent === 'true' ? '施行中' : '歷史版本' }}
+                  {{ page.isCurrent === 'true' ? '本網站已知最新版本' : '已知歷史版本' }}
                 </span>
               </div>
             </div>
@@ -60,7 +60,7 @@
                     ? 'bg-lake-50 dark:bg-lake-900/20 text-lake-700 dark:text-lake-300 font-medium border border-lake-100 dark:border-lake-800' 
                     : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50'"
                 >
-                  {{ ver.version }}
+                  {{ toRocDate(ver.version) }}
                   <span v-if="route.path === ver.path" class="text-xs ml-1 opacity-70">(瀏覽中)</span>
                 </NuxtLink>
               </li>
@@ -166,13 +166,13 @@ const historyVersions = computedAsync(async () => {
     .all()
 })
 
-// 3. 格式化法規文字 (支援 Dark Mode)
+// 3. 格式化法規文字
 function formatLawText(text: string) {
   const regex = /(^|\s)(第\s*[0-9０-９一二三四五六七八九十百]+\s*條)/g
-  // 修改為 Tailwind class，確保在亮/暗模式下都清楚可見
-  // text-slate-900 (黑) / dark:text-slate-50 (白)
   return text.replace(regex, '$1<strong class="font-black text-slate-900 dark:text-slate-50 text-lg">$2</strong>')
 }
+
+const { toRocDate } = useRocDate() // 引入日期中文化+民國紀年工具
 </script>
 
 <style scoped>

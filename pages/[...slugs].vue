@@ -163,9 +163,9 @@ const lawRegex = /(^\s*第\s*[0-9０-９一二三四五六七八九十百]+\s*�
 
 // 定義要傳給 ContentRenderer 的元件映射表
 const mapComponents = {
-  // 覆寫 H1
-  h1: (props: any, { slots }: any) => h(
-    'h1', 
+  // 覆寫 H2
+  h2: (props: any, { slots }: any) => h(
+    'h2', 
     { 
       ...props, 
       class: 'text-2xl font-bold mt-10 mb-6 text-slate-900 dark:text-slate-100 flex items-center gap-2' 
@@ -176,9 +176,9 @@ const mapComponents = {
     ]
   ),
 
-  // 覆寫 H2 (保留 props 以確保 id 錨點功能正常)
-  h2: (props: any, { slots }: any) => h(
-    'h2', 
+  // 覆寫 H3 (保留 props 以確保 id 錨點功能正常)
+  h3: (props: any, { slots }: any) => h(
+    'h3', 
     { 
       ...props, 
       class: 'text-xl font-bold mt-8 mb-4 border-b border-slate-200 dark:border-slate-700 pb-2 text-slate-800 dark:text-slate-200' 
@@ -186,9 +186,9 @@ const mapComponents = {
     slots.default?.()
   ),
   
-  // 覆寫 H3
-  h3: (props: any, { slots }: any) => h(
-    'h3',
+  // 覆寫 H4
+  h4: (props: any, { slots }: any) => h(
+    'h4',
     {
       ...props,
       class: 'text-lg font-bold mt-6 mb-3 text-slate-800 dark:text-slate-300'
@@ -207,7 +207,7 @@ const mapComponents = {
       return nodes.map((node) => {
         // 情況 A: 節點本身就是字串 (Vue 有時會這樣傳)
         if (typeof node === 'string') {
-          const newText = node.replace(lawRegex, '<strong class="font-black text-slate-900 dark:text-slate-50 text-lg">$1</strong>')
+          const newText = node.replace(lawRegex, '<strong class="font-bold text-slate-900 dark:text-slate-50 text-lg">$1</strong>')
           if (newText !== node) {
             return h('span', { innerHTML: newText })
           }
@@ -217,7 +217,7 @@ const mapComponents = {
         // 情況 B: 節點是 VNode，且 children 是字串 (最常見的情況)
         if (node && typeof node.children === 'string') {
           const originalText = node.children
-          const newText = originalText.replace(lawRegex, '<strong class="font-black text-slate-900 dark:text-slate-50 text-lg">$1</strong>')
+          const newText = originalText.replace(lawRegex, '<strong class="font-bold text-slate-900 dark:text-slate-50 text-lg">$1</strong>')
           
           // 如果有變更，回傳一個新的 span 包裹 innerHTML
           if (newText !== originalText) {

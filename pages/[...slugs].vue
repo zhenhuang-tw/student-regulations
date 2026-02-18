@@ -157,8 +157,9 @@ useHead({
 // 4. 自定義渲染元件 (解決標題樣式與條號加粗問題)
 // ==========================================
 
-// 定義 Regex：抓取行首的「第 X 條」
-const lawRegex = /(^|\s)(第\s*[0-9０-９一二三四五六七八九十百]+\s*條)/g
+// 定義 Regex：抓取行首的「第 X 條」、「第 X 條之 Y」，並包含後方「（...）」或「【...】」的要旨
+// 使用 ^ 鎖定開頭，確保不抓取內文中引用的條號
+const lawRegex = /(^\s*第\s*[0-9０-９一二三四五六七八九十百]+\s*條(?:之\s*[0-9０-９一二三四五六七八九十百]+)?(?:\s*[（【][^）】]*[）】])?)/g
 
 // 定義要傳給 ContentRenderer 的元件映射表
 const mapComponents = {
@@ -206,7 +207,7 @@ const mapComponents = {
       return nodes.map((node) => {
         // 情況 A: 節點本身就是字串 (Vue 有時會這樣傳)
         if (typeof node === 'string') {
-          const newText = node.replace(lawRegex, '$1<strong class="font-black text-slate-900 dark:text-slate-50 text-lg">$2</strong>')
+          const newText = node.replace(lawRegex, '<strong class="font-black text-slate-900 dark:text-slate-50 text-lg">$1</strong>')
           if (newText !== node) {
             return h('span', { innerHTML: newText })
           }
@@ -216,7 +217,7 @@ const mapComponents = {
         // 情況 B: 節點是 VNode，且 children 是字串 (最常見的情況)
         if (node && typeof node.children === 'string') {
           const originalText = node.children
-          const newText = originalText.replace(lawRegex, '$1<strong class="font-black text-slate-900 dark:text-slate-50 text-lg">$2</strong>')
+          const newText = originalText.replace(lawRegex, '<strong class="font-black text-slate-900 dark:text-slate-50 text-lg">$1</strong>')
           
           // 如果有變更，回傳一個新的 span 包裹 innerHTML
           if (newText !== originalText) {

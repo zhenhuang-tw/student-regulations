@@ -12,7 +12,7 @@
               </svg>
             </div>
             <h1 class="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-lake-600 to-lake-800 dark:from-lake-300 dark:to-lake-500">
-              臺灣學生自治規章典藏
+              臺灣學生自治規章
             </h1>
           </NuxtLink>
 
@@ -52,7 +52,7 @@
         <p class="text-slate-500 text-sm">
           &copy; {{ new Date().getFullYear() }} by Zhen Huang.
         </p>
-        <p class="text-xs text-lake-500 mt-2 font-mono"><a href="https://github.com/zhenhuang-tw/student-regulations" class="text-lake-500">GitHub</a></p>
+        <p class="text-xs text-lake-500 mt-2 font-mono"><a href="https://github.com/zhenhuang-tw/student-governance-regulations" class="text-lake-500">GitHub</a></p>
       </footer>
 
     </div>
@@ -106,7 +106,7 @@ const updateHtmlClass = () => {
   transform: translateY(5px);
 }
 
-/* 自定義捲軸樣式，符合「湖水」主題 */
+/* 自定義捲軸樣式，符合主題色系 */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
